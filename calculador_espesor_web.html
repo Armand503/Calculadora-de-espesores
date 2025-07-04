@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculador de Espesor - Essilor</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      padding: 20px;
+    }
+    .container {
+      max-width: 700px;
+      margin: auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h2 {
+      text-align: center;
+      color: #2a6ea8;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    input[type="number"], select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    .lado {
+      margin-top: 30px;
+      padding: 10px;
+      background: #f0f8ff;
+      border-radius: 8px;
+    }
+    button {
+      margin-top: 20px;
+      width: 100%;
+      padding: 10px;
+      background: #2a6ea8;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #1f4e78;
+    }
+    .result {
+      margin-top: 20px;
+      background: #e0f7fa;
+      padding: 15px;
+      border-radius: 5px;
+      font-size: 18px;
+    }
+    .warning {
+      color: red;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Calculador de Espesor<br>Basado en Materiales Essilor</h2>
+
+    <label for="material">Material Essilor</label>
+    <select id="material">
+      <option value="1.586">Policarbonato 1.586 (Airwear)</option>
+      <option value="1.60">Ormix 1.60</option>
+      <option value="1.67">Alto índice 1.67</option>
+      <option value="1.74">Thin & Lite 1.74</option>
+    </select>
+
+    <label for="aro">Tipo de Aro</label>
+    <select id="aro">
+      <option value="completo">Completo</option>
+      <option value="semi">Semi al aire</option>
+      <option value="aire">Al aire</option>
+    </select>
+
+    <label for="altura">Altura de montaje (mm)</label>
+    <input type="number" id="altura" step="0.1">
+
+    <label for="a">A - Medida horizontal (mm)</label>
+    <input type="number" id="a" step="0.1">
+
+    <label for="b">B - Medida vertical (mm)</label>
+    <input type="number" id="b" step="0.1">
+
+    <label for="c">C - Diagonal (mm)</label>
+    <input type="number" id="c" step="0.1">
+
+    <label for="d">D - Puente (mm)</label>
+    <input type="number" id="d" step="0.1">
+
+    <div class="lado">
+      <h3>Ojo Derecho (OD)</h3>
+      <label for="sph_od">Esfera (SPH)</label>
+      <input type="number" id="sph_od" step="0.01">
+      <label for="cyl_od">Cilindro (CYL)</label>
+      <input type="number" id="cyl_od" step="0.01">
+      <label for="axis_od">Eje (º)</label>
+      <input type="number" id="axis_od" step="1">
+      <label for="add_od">Adición (ADD)</label>
+      <input type="number" id="add_od" step="0.01">
+      <label for="ed_od">Distancia Excéntrica ED (mm)</label>
+      <input type="number" id="ed_od" step="0.1">
+    </div>
+
+    <div class="lado">
+      <h3>Ojo Izquierdo (OI)</h3>
+      <label for="sph_oi">Esfera (SPH)</label>
+      <input type="number" id="sph_oi" step="0.01">
+      <label for="cyl_oi">Cilindro (CYL)</label>
+      <input type="number" id="cyl_oi" step="0.01">
+      <label for="axis_oi">Eje (º)</label>
+      <input type="number" id="axis_oi" step="1">
+      <label for="add_oi">Adición (ADD)</label>
+      <input type="number" id="add_oi" step="0.01">
+      <label for="ed_oi">Distancia Excéntrica ED (mm)</label>
+      <input type="number" id="ed_oi" step="0.1">
+    </div>
+
+    <button onclick="calcularEspesor()">Calcular Espesores</button>
+
+    <div id="resultado" class="result" style="display:none;"></div>
+  </div>
+
+  <script>
+    function calcularEspesor() {
+      const material = document.getElementById("material").value;
+      const n = parseFloat(material);
+      const aro = document.getElementById("aro").value;
+
+      // Espesores mínimos por material
+      let espMinMaterial = 1.0;
+      if (material === "1.74") espMinMaterial = 0.75;
+      else if (material === "1.67") espMinMaterial = 1.2;
+      else espMinMaterial = 1.0;
+
+      let ajusteAro = 0;
+      if (aro === "semi") ajusteAro = 0.2;
+      else if (aro === "aire") ajusteAro = 0.5;
+
+      const espMin = espMinMaterial + ajusteAro;
+
+      const sphOD = parseFloat(document.getElementById("sph_od").value);
+      const edOD = parseFloat(document.getElementById("ed_od").value);
+      const sphOI = parseFloat(document.getElementById("sph_oi").value);
+      const edOI = parseFloat(document.getElementById("ed_oi").value);
+
+      if (isNaN(sphOD) || isNaN(edOD) || isNaN(sphOI) || isNaN(edOI)) {
+        alert("Por favor, completa todos los campos de esfera y ED para ambos ojos.");
+        return;
+      }
+
+      const baseOD = (Math.abs(sphOD) * Math.pow(edOD, 2)) / (1000 * (n - 1));
+      const baseOI = (Math.abs(sphOI) * Math.pow(edOI, 2)) / (1000 * (n - 1));
+      const espOD = sphOD < 0 ? espMin + baseOD : espMin + baseOD;
+      const espOI = sphOI < 0 ? espMin + baseOI : espMin + baseOI;
+
+      const resultado = document.getElementById("resultado");
+      resultado.style.display = "block";
+      resultado.innerHTML = `
+        <strong>Resultados de Espesores:</strong><br>
+        OD - Esfera: ${sphOD}, ED: ${edOD} → Espesor estimado: <strong>${espOD.toFixed(2)} mm</strong><br>
+        OI - Esfera: ${sphOI}, ED: ${edOI} → Espesor estimado: <strong>${espOI.toFixed(2)} mm</strong><br>
+        Material: <strong>${document.getElementById("material").selectedOptions[0].text}</strong><br>
+        Tipo de aro: <strong>${aro}</strong><br>
+        <br><span class='warning'>Nota: Este cálculo es una estimación basada en parámetros básicos.</span>
+      `;
+    }
+  </script>
+</body>
+</html>
